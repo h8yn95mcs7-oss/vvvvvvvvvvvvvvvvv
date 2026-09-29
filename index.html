@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation: Make Myla Smile</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #101317;
+    color: white;
+}
+
+.screen {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 25px;
+    text-align: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+.content {
+    width: min(92%, 650px);
+    position: relative;
+    z-index: 5;
+}
+
+.main-text {
+    font-size: clamp(25px, 5vw, 48px);
+    line-height: 1.2;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+.sub-text {
+    font-size: clamp(20px, 4vw, 30px);
+    line-height: 1.35;
+    margin-bottom: 25px;
+}
+
+button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 15px 24px;
+    border-radius: 18px;
+    background: #ffd91a;
+    color: #151515;
+    font-size: 17px;
+    font-weight: 800;
+    transition: transform .2s ease, box-shadow .2s ease;
+    margin: 8px;
+}
+
+button:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(255, 217, 26, .22);
+}
+
+button:active {
+    transform: scale(.96);
+}
+
+.yellow {
+    color: #ffd91a;
+}
+
+.small {
+    font-size: 15px;
+    opacity: .65;
+    margin-top: 15px;
+}
+
+/* BACKGROUND */
+
+.bg-dot {
+    position: fixed;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffd91a;
+    opacity: .15;
+    animation: float 5s infinite ease-in-out;
+}
+
+@keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-30px); }
+}
+
+/* MINIONS */
+
+.minion {
+    position: absolute;
+    width: 90px;
+    height: 125px;
+    background: #ffd91a;
+    border-radius: 45% 45% 35% 35%;
+    border: 4px solid #111;
+    box-shadow: 0 10px 20px rgba(0,0,0,.35);
+}
+
+.minion::before {
+    content: "";
+    position: absolute;
+    width: 78px;
+    height: 45px;
+    background: #1769aa;
+    bottom: -3px;
+    left: 2px;
+    border-radius: 10px 10px 30px 30px;
+}
+
+.eye {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    background: white;
+    border: 5px solid #222;
+    border-radius: 50%;
+    top: 25px;
+    left: 25px;
+    z-index: 3;
+}
+
+.eye::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #222;
+    border-radius: 50%;
+    top: 7px;
+    left: 7px;
+}
+
+.mouth {
+    position: absolute;
+    width: 30px;
+    height: 13px;
+    border-bottom: 5px solid #222;
+    border-radius: 50%;
+    top: 72px;
+    left: 27px;
+    z-index: 4;
+}
+
+.goggle {
+    position: absolute;
+    width: 100px;
+    height: 12px;
+    background: #222;
+    top: 36px;
+    left: -8px;
+    z-index: 2;
+}
+
+.arm {
+    position: absolute;
+    width: 45px;
+    height: 12px;
+    background: #ffd91a;
+    border: 3px solid #111;
+    border-radius: 20px;
+    top: 65px;
+}
+
+.arm.left {
+    left: -37px;
+    transform: rotate(25deg);
+}
+
+.arm.right {
+    right: -37px;
+    transform: rotate(-25deg);
+}
+
+.minion.small-minion {
+    transform: scale(.72);
+}
+
+.minion.big-minion {
+    transform: scale(1.18);
+}
+
+.entry-left {
+    left: -150px;
+    bottom: 20%;
+    animation: enterLeft 1.2s forwards;
+}
+
+.entry-right {
+    right: -150px;
+    bottom: 22%;
+    animation: enterRight 1.4s forwards;
+}
+
+.entry-bottom {
+    left: 50%;
+    bottom: -180px;
+    transform: translateX(-50%) scale(.85);
+    animation: enterBottom 1.3s forwards;
+}
+
+@keyframes enterLeft {
+    to { left: 12%; transform: rotate(-5deg); }
+}
+
+@keyframes enterRight {
+    to { right: 12%; transform: rotate(5deg); }
+}
+
+@keyframes enterBottom {
+    to { bottom: 10%; }
+}
+
+.bounce {
+    animation: bounce .8s infinite alternate ease-in-out;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-20px); }
+}
+
+/* MISSION CARD */
+
+.card {
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.1);
+    backdrop-filter: blur(14px);
+    border-radius: 28px;
+    padding: 30px;
+    max-width: 600px;
+    margin: auto;
+}
+
+/* PHOTO */
+
+.photo-wrap {
+    width: min(82vw, 330px);
+    height: min(82vw, 400px);
+    margin: 20px auto;
+    border-radius: 30px;
+    overflow: hidden;
+    border: 5px solid #ffd91a;
+    box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    animation: photoIn 1s ease forwards;
+}
+
+.photo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+@keyframes photoIn {
+    from {
+        opacity: 0;
+        transform: scale(.65) rotate(-4deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+    }
+}
+
+/* CONFETTI */
+
+.confetti {
+    position: fixed;
+    width: 9px;
+    height: 16px;
+    background: #ffd91a;
+    top: -30px;
+    animation: fall 3s linear forwards;
+    z-index: 20;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(110vh) rotate(720deg);
+    }
+}
+
+/* FUNNY SHAKE */
+
+.shake {
+    animation: shake .5s;
+}
+
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-12px); }
+    50% { transform: translateX(12px); }
+    75% { transform: translateX(-8px); }
+}
+
+/* MOBILE */
+
+@media(max-width:600px) {
+    .minion {
+        width: 65px;
+        height: 92px;
+    }
+
+    .minion::before {
+        width: 57px;
+        height: 35px;
+    }
+
+    .eye {
+        width: 27px;
+        height: 27px;
+        left: 17px;
+        top: 19px;
+    }
+
+    .goggle {
+        width: 75px;
+        top: 28px;
+    }
+
+    .mouth {
+        top: 54px;
+        left: 18px;
+    }
+
+    .entry-left {
+        left: 3%;
+    }
+
+    .entry-right {
+        right: 3%;
+    }
+
+    .card {
+        padding: 22px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg-dot" style="left:10%;top:15%;"></div>
+<div class="bg-dot" style="left:80%;top:20%;animation-delay:1s;"></div>
+<div class="bg-dot" style="left:25%;top:75%;animation-delay:2s;"></div>
+<div class="bg-dot" style="left:90%;top:80%;animation-delay:3s;"></div>
+
+<!-- SCREEN 1 -->
+<section id="screen1" class="screen active">
+    <div class="content">
+        <div class="main-text">
+            Areyy aaj to Mylaaa ache mood me nhi haiii 😭
+            aaj gnd na mar leee ab to Minions ko bulana padegaaa,
+            vohi kuch kr sakte hai ab 😭
+        </div>
+
+        <button type="button" onclick="callMinions()">
+            MINIONS KO BULAAA 😭
+        </button>
+
+        <div class="small">Emergency mood-fixing department activated</div>
+    </div>
+</section>
+
+<!-- SCREEN 2 -->
+<section id="screen2" class="screen">
+    
+    <div class="minion entry-left">
+        <div class="goggle"></div>
+        <div class="eye"></div>
+        <div class="mouth"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+    </div>
+
+    <div class="minion small-minion entry-right">
+        <div class="goggle"></div>
+        <div class="eye"></div>
+        <div class="mouth"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+    </div>
+
+    <div class="minion big-minion entry-bottom">
+        <div class="goggle"></div>
+        <div class="eye"></div>
+        <div class="mouth"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+    </div>
+
+    <div class="content card">
+        <div class="main-text yellow">
+            GUYS PROBLEM HAI 🚨
+        </div>
+
+        <div class="sub-text">
+            MYLA KA MOOD KHARAB HAI 😭
+        </div>
+
+        <p class="small">
+            Emergency Minion meeting officially started.
+        </p>
+
+        <button type="button" onclick="startMission()">
+            MISSION START
+        </button>
+    </div>
+</section>
+
+<!-- SCREEN 3 -->
+<section id="screen3" class="screen">
+    <div class="content card">
+        <div class="main-text yellow">
+            OPERATION<br>MYLA SMILE
+        </div>
+
+        <div class="sub-text" id="missionText">
+            Minions ab full effort karenge 😤
+        </div>
+
+        <button type="button" onclick="funnyMinion()">
+            EK FUNNY MINION BHEJO 😂
+        </button>
+
+        <button type="button" onclick="sendHug()">
+            HUG BHEJO 🫂
+        </button>
+
+        <button type="button" onclick="moreEffort()">
+            AUR EFFORT KARO 😭
+        </button>
+
+        <button type="button" onclick="stillSad()">
+            ABHI BHI MOOD KHARAB HAI 😭
+        </button>
+    </div>
+</section>
+
+<!-- SCREEN 4 -->
+<section id="screen4" class="screen">
+    <div class="content card">
+        <div class="main-text">
+            ab sach sach batao Mylaaa 👀
+        </div>
+
+        <div class="sub-text">
+            mood thoda theek hua ya nahi?
+        </div>
+
+        <button type="button" onclick="moodFixed()">
+            HAAN THODI SI SMILE AA GAYI
+        </button>
+
+        <button type="button" onclick="stillNotFixed()">
+            NAHI 😭
+        </button>
+
+        <div id="panicText" class="small"></div>
+    </div>
+</section>
+
+<!-- SCREEN 5 -->
+<section id="screen5" class="screen">
+    <div class="content">
+        <div class="main-text yellow">
+            YAYYYYYYYYYYYYY 😭💛
+            <br>
+            MOOD THIK HOGYAAAAAAAA
+            <br>
+            FINALLYYYYYYYYY
+        </div>
+
+        <div class="photo-wrap">
+            <!-- Replace myra.jpg with Myra's photo -->
+            <img src="myra.jpg" alt="Myra">
+        </div>
+
+        <div class="sub-text">
+            dekhaaaa, Minions ko bulana pada
+            but kaam ho gaya 😭
+        </div>
+
+        <button type="button" onclick="completeMission()">
+            MISSION COMPLETE ✅
+        </button>
+    </div>
+</section>
+
+<!-- SCREEN 6 -->
+<section id="screen6" class="screen">
+    
+    <div class="minion bounce" style="left:10%;bottom:12%;">
+        <div class="goggle"></div>
+        <div class="eye"></div>
+        <div class="mouth"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+    </div>
+
+    <div class="minion small-minion bounce" style="right:12%;bottom:15%;animation-delay:.2s;">
+        <div class="goggle"></div>
+        <div class="eye"></div>
+        <div class="mouth"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+    </div>
+
+    <div class="content">
+        <div class="main-text yellow">
+            MISSION COMPLETE ✅
+        </div>
+
+        <div class="sub-text">
+            ab aise hi thodi thodi smile karte rehna Mylaaa 😭💛
+        </div>
+
+        <div class="small">
+            Minions officially off duty.
+        </div>
+    </div>
+</section>
+
+<script>
+
+/* ==========================================
+   SIMPLE SCREEN SYSTEM
+   ========================================== */
+
+function showScreen(number) {
+
+    const screens = document.querySelectorAll(".screen");
+
+    screens.forEach(function(screen) {
+        screen.classList.remove("active");
+    });
+
+    const target = document.getElementById("screen" + number);
+
+    if (target) {
+        target.classList.add("active");
+    }
+}
+
+/* ==========================================
+   OPENING
+   ========================================== */
+
+function callMinions() {
+    showScreen(2);
+}
+
+/* ==========================================
+   START MISSION
+   ========================================== */
+
+function startMission() {
+    showScreen(3);
+}
+
+/* ==========================================
+   FUNNY MINION
+   ========================================== */
+
+function funnyMinion() {
+
+    const text = document.getElementById("missionText");
+
+    text.innerHTML =
+        "MINION NE APNA SABSE FUNNY FACE NIKAL DIYA 😭😂";
+
+    document.body.classList.remove("shake");
+
+    void document.body.offsetWidth;
+
+    document.body.classList.add("shake");
+}
+
+/* ==========================================
+   HUG
+   ========================================== */
+
+function sendHug() {
+
+    const text = document.getElementById("missionText");
+
+    text.innerHTML =
+        "MINION NE EK BADA SA VIRTUAL HUG BHEJA 🫂💛";
+}
+
+/* ==========================================
+   MORE EFFORT
+   ========================================== */
+
+function moreEffort() {
+
+    const text = document.getElementById("missionText");
+
+    text.innerHTML =
+        "THEEK HAI BOSS 😭 MINIONS AB 200% EFFORT KARENGE";
+
+    createConfetti(15);
+}
+
+/* ==========================================
+   STILL SAD
+   ========================================== */
+
+function stillSad() {
+
+    const text = document.getElementById("missionText");
+
+    text.innerHTML =
+        "WHATTT 😭 MINIONS KO AUR MEHNAT KARNI PADEGI";
+
+    setTimeout(function() {
+        showScreen(4);
+    }, 1200);
+}
+
+/* ==========================================
+   MOOD CHECK
+   ========================================== */
+
+function moodFixed() {
+
+    showScreen(5);
+
+    createConfetti(45);
+}
+
+/* ==========================================
+   STILL NOT FIXED
+   ========================================== */
+
+function stillNotFixed() {
+
+    const panic = document.getElementById("panicText");
+
+    panic.innerHTML =
+        "WHATTTTT 😭 BOSS YE TO SERIOUS CASE HAI. MINIONS EK AUR ATTEMPT KARENGE.";
+
+    createConfetti(10);
+
+    setTimeout(function() {
+        panic.innerHTML =
+            "MINIONS: PLEASE EK CHOTI SI SMILE DE DO 😭";
+    }, 1500);
+
+    setTimeout(function() {
+        showScreen(3);
+    }, 3000);
+}
+
+/* ==========================================
+   FINAL
+   ========================================== */
+
+function completeMission() {
+
+    showScreen(6);
+
+    createConfetti(70);
+}
+
+/* ==========================================
+   CONFETTI
+   ========================================== */
+
+function createConfetti(amount) {
+
+    for (let i = 0; i < amount; i++) {
+
+        const piece = document.createElement("div");
+
+        piece.className = "confetti";
+
+        piece.style.left =
+            Math.random() * 100 + "vw";
+
+        piece.style.animationDelay =
+            Math.random() * 1.5 + "s";
+
+        piece.style.transform =
+            "rotate(" + Math.random() * 360 + "deg)";
+
+        document.body.appendChild(piece);
+
+        setTimeout(function() {
+            piece.remove();
+        }, 4500);
+    }
+}
+
+</script>
+
+</body>
+</html>
